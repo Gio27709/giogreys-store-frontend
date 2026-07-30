@@ -9,6 +9,8 @@ import {
   Users,
   Receipt,
   Settings,
+  Lock,
+  UserCheck,
   LogOut,
 } from 'lucide-react';
 import './Sidebar.css';
@@ -38,6 +40,16 @@ export function Sidebar({ activeTab, setActiveTab }) {
           <div className="sidebar-link-left">
             <ShoppingCart className="sidebar-icon" size={18} />
             <span>Punto de Venta (POS)</span>
+          </div>
+        </button>
+
+        <button
+          className={`sidebar-link ${activeTab === 'cash-register' ? 'active' : ''}`}
+          onClick={() => setActiveTab('cash-register')}
+        >
+          <div className="sidebar-link-left">
+            <Lock className="sidebar-icon" size={18} />
+            <span>Arqueo & Cierre Caja</span>
           </div>
         </button>
 
@@ -82,6 +94,16 @@ export function Sidebar({ activeTab, setActiveTab }) {
         </button>
 
         <div className="nav-group-label" style={{ marginTop: '0.85rem' }}>Configuración & Sistema</div>
+
+        <button
+          className={`sidebar-link ${activeTab === 'users' ? 'active' : ''}`}
+          onClick={() => setActiveTab('users')}
+        >
+          <div className="sidebar-link-left">
+            <UserCheck className="sidebar-icon" size={18} />
+            <span>Usuarios & Empleados</span>
+          </div>
+        </button>
 
         <button
           className={`sidebar-link ${activeTab === 'settings' ? 'active' : ''}`}

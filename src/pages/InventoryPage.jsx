@@ -10,7 +10,8 @@ import {
 } from '../services/inventoryService';
 import { ProductModal } from '../components/ProductModal';
 import { CategoryModal } from '../components/CategoryModal';
-import { Search, Plus, Filter, AlertTriangle, PackageCheck, Archive, Tag } from 'lucide-react';
+import { exportToCSV } from '../utils/exportUtils';
+import { Search, Plus, Filter, AlertTriangle, PackageCheck, Archive, Tag, FileSpreadsheet } from 'lucide-react';
 import './InventoryPage.css';
 
 export function InventoryPage() {
@@ -116,6 +117,27 @@ export function InventoryPage() {
             <Tag size={16} />
             <span>Nueva Categoría</span>
           </button>
+          <button
+            type="button"
+            className="btn-action-secondary"
+            onClick={() => {
+              const exportData = variants.map((v) => ({
+                SKU: v.sku,
+                Producto: v.variantName || v.product?.baseName,
+                Categoria: v.product?.category?.name || 'General',
+                Proveedor: v.product?.supplier?.name || 'General',
+                PrecioUSD: v.priceUsd,
+                CostoUSD: v.costUsd,
+                Stock: v.stock,
+                Estado: v.stock > 0 ? 'Disponible' : 'Agotado',
+              }));
+              exportToCSV('Inventario_GiogreysStore', exportData);
+            }}
+          >
+            <FileSpreadsheet size={16} />
+            <span>Exportar Excel</span>
+          </button>
+
           <button onClick={() => setShowProductModal(true)} className="btn-action-primary">
             <Plus size={18} />
             <span>Nuevo Producto</span>

@@ -8,6 +8,8 @@ import { PosPage } from './pages/PosPage';
 import { CustomersPage } from './pages/CustomersPage';
 import { SalesHistoryPage } from './pages/SalesHistoryPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { CashRegisterPage } from './pages/CashRegisterPage';
+import { UsersPage } from './pages/UsersPage';
 import { ShieldCheck, Package, ShoppingCart, Users, CheckCircle2, TrendingUp, DollarSign } from 'lucide-react';
 import './App.css';
 
@@ -84,10 +86,9 @@ function DashboardView({ token, user }) {
       </div>
 
       <div className="audit-section">
-        <h2>🟢 Módulo Financiero & Configuración Activo</h2>
+        <h2>🟢 Módulo Enterprise Completo</h2>
         <p>
-          El sistema está procesando transacciones en tiempo real en Supabase PostgreSQL.
-          Puedes ajustar las tasas de cambio (BCV / COP) en el menú **Configuración & Tasas** o consultar recibos pasados en **Historial de Ventas**.
+          El sistema cuenta con **Punto de Venta Multimoneda**, **Arqueo y Cierre de Caja Diaria**, **Exportación a Excel**, **Historial de Facturación Correlativa** y **Control de Usuarios y Empleados**.
         </p>
       </div>
     </>
@@ -133,12 +134,16 @@ function MainApp() {
         <main className="workspace-content">
           {activeTab === 'pos' ? (
             <PosPage />
+          ) : activeTab === 'cash-register' ? (
+            <CashRegisterPage />
           ) : activeTab === 'inventory' ? (
             <InventoryPage />
           ) : activeTab === 'history' ? (
             <SalesHistoryPage />
           ) : activeTab === 'customers' ? (
             <CustomersPage />
+          ) : activeTab === 'users' ? (
+            <UsersPage />
           ) : activeTab === 'settings' ? (
             <SettingsPage />
           ) : (

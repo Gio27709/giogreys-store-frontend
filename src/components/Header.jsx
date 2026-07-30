@@ -7,9 +7,11 @@ export function Header({ activeTab }) {
 
   const titleMap = {
     pos: 'Punto de Venta (POS Multimoneda)',
+    'cash-register': 'Arqueo & Cierre de Caja POS',
     inventory: 'Gestión de Inventario & Productos',
     history: 'Historial Facturación de Ventas',
     customers: 'Directorio de Clientes (CRM)',
+    users: 'Gestión de Usuarios & Empleados',
     settings: 'Configuración & Tasas de Cambio',
     dashboard: 'Panel Principal de Métricas Financieras',
   };
