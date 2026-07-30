@@ -7,7 +7,6 @@ import {
   Truck,
   ShoppingCart,
   Users,
-  Settings,
   LogOut,
 } from 'lucide-react';
 import './Sidebar.css';
@@ -31,12 +30,32 @@ export function Sidebar({ activeTab, setActiveTab }) {
         <div className="nav-group-label">Módulos Principales</div>
 
         <button
+          className={`sidebar-link ${activeTab === 'pos' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pos')}
+        >
+          <div className="sidebar-link-left">
+            <ShoppingCart className="sidebar-icon" size={18} />
+            <span>Punto de Venta (POS)</span>
+          </div>
+        </button>
+
+        <button
           className={`sidebar-link ${activeTab === 'inventory' ? 'active' : ''}`}
           onClick={() => setActiveTab('inventory')}
         >
           <div className="sidebar-link-left">
             <Boxes className="sidebar-icon" size={18} />
             <span>Inventario & Productos</span>
+          </div>
+        </button>
+
+        <button
+          className={`sidebar-link ${activeTab === 'customers' ? 'active' : ''}`}
+          onClick={() => setActiveTab('customers')}
+        >
+          <div className="sidebar-link-left">
+            <Users className="sidebar-icon" size={18} />
+            <span>Clientes</span>
           </div>
         </button>
 
@@ -70,24 +89,6 @@ export function Sidebar({ activeTab, setActiveTab }) {
             <Truck className="sidebar-icon" size={18} />
             <span>Proveedores</span>
           </div>
-        </button>
-
-        <div className="nav-group-label" style={{ marginTop: '0.85rem' }}>Ventas & Operación</div>
-
-        <button className="sidebar-link" style={{ opacity: 0.6, cursor: 'not-allowed' }}>
-          <div className="sidebar-link-left">
-            <ShoppingCart className="sidebar-icon" size={18} />
-            <span>Punto de Venta (POS)</span>
-          </div>
-          <span className="sidebar-badge">Próximo</span>
-        </button>
-
-        <button className="sidebar-link" style={{ opacity: 0.6, cursor: 'not-allowed' }}>
-          <div className="sidebar-link-left">
-            <Users className="sidebar-icon" size={18} />
-            <span>Clientes</span>
-          </div>
-          <span className="sidebar-badge">Próximo</span>
         </button>
       </nav>
 

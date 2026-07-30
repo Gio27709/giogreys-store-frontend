@@ -1,12 +1,14 @@
 import { useAuth } from '../context/AuthContext';
-import { Database, Bell, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import './Header.css';
 
 export function Header({ activeTab }) {
   const { user } = useAuth();
 
   const titleMap = {
+    pos: 'Punto de Venta (POS Multimoneda)',
     inventory: 'Gestión de Inventario & Productos',
+    customers: 'Directorio de Clientes (CRM)',
     dashboard: 'Panel Principal de Métricas',
   };
 

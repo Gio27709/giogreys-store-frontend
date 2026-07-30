@@ -4,12 +4,14 @@ import { LoginPage } from './pages/LoginPage';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { InventoryPage } from './pages/InventoryPage';
+import { PosPage } from './pages/PosPage';
+import { CustomersPage } from './pages/CustomersPage';
 import { ShieldCheck, Package, ShoppingCart, Users, CheckCircle2 } from 'lucide-react';
 import './App.css';
 
 function MainApp() {
   const { user, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState('inventory');
+  const [activeTab, setActiveTab] = useState('pos'); // Default to POS for instant billing testing
 
   if (loading) {
     return (
@@ -18,10 +20,10 @@ function MainApp() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#080c14',
-        color: '#818cf8',
+        background: '#fff5f8',
+        color: '#d97706',
         fontSize: '1.1rem',
-        fontWeight: '500',
+        fontWeight: '700',
         gap: '0.75rem'
       }}>
         <div className="spinner" style={{ width: '28px', height: '28px' }}></div>
@@ -44,8 +46,12 @@ function MainApp() {
         <Header activeTab={activeTab} />
 
         <main className="workspace-content">
-          {activeTab === 'inventory' ? (
+          {activeTab === 'pos' ? (
+            <PosPage />
+          ) : activeTab === 'inventory' ? (
             <InventoryPage />
+          ) : activeTab === 'customers' ? (
+            <CustomersPage />
           ) : (
             <>
               <div className="welcome-banner">
@@ -95,10 +101,9 @@ function MainApp() {
               </div>
 
               <div className="audit-section">
-                <h2>🟢 Módulo de Inventario Integrado</h2>
+                <h2>🟢 Módulo POS Multimoneda Activo</h2>
                 <p>
-                  El módulo de **Gestión de Inventario y Productos** se encuentra totalmente conectado a PostgreSQL Supabase.
-                  Usa el menú lateral para acceder a la gestión de productos, variantes con SKUs únicos y alerta de bajo stock.
+                  El módulo de **Punto de Venta (POS Multimoneda)** permite facturar en tiempo real con conversión instantánea a **USD**, **VES (Bs.)** y **COP ($)**, registrando clientes y descontando existencias automáticamente.
                 </p>
               </div>
             </>
