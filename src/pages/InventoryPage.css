@@ -8,7 +8,7 @@
 
 /* Control & Actions Header Bar */
 .inventory-actions-bar {
-  background: var(--bg-card);
+  background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 1rem 1.25rem;
@@ -17,7 +17,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .filter-group {
@@ -46,8 +46,8 @@
 .inventory-search-input {
   width: 100%;
   padding: 0.65rem 1rem 0.65rem 2.75rem;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
+  background: #fff8fa;
+  border: 1px solid #fbcfe8;
   border-radius: 10px;
   color: var(--text-primary);
   font-size: 0.9rem;
@@ -56,29 +56,31 @@
 }
 
 .inventory-search-input:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  background: #ffffff;
 }
 
 .select-filter {
   padding: 0.65rem 2.25rem 0.65rem 1rem;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
+  background: #fff8fa;
+  border: 1px solid #fbcfe8;
   border-radius: 10px;
   color: var(--text-primary);
   font-size: 0.875rem;
+  font-weight: 500;
   outline: none;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2094a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2378716c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 1.1em;
 }
 
 .btn-filter-toggle {
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
+  background: #fff8fa;
+  border: 1px solid #fbcfe8;
   color: var(--text-secondary);
   padding: 0.65rem 1.1rem;
   border-radius: 10px;
@@ -92,10 +94,10 @@
 }
 
 .btn-filter-toggle.active {
-  background: var(--warning-bg);
-  border-color: rgba(245, 158, 11, 0.4);
-  color: #fbbf24;
-  font-weight: 600;
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+  font-weight: 700;
 }
 
 .action-buttons-group {
@@ -105,34 +107,34 @@
 }
 
 .btn-action-primary {
-  background: var(--accent-gradient);
+  background: var(--gold-gradient);
   color: #ffffff;
   border: none;
   padding: 0.65rem 1.3rem;
   border-radius: 10px;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-action-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
 }
 
 .btn-action-secondary {
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   color: var(--text-primary);
   padding: 0.65rem 1.1rem;
   border-radius: 10px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -141,16 +143,17 @@
 }
 
 .btn-action-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
-/* Tabla Full Width de Alta Densidad */
+/* Tabla Blanca Impoluta de Alta Densidad */
 .table-card {
-  background: var(--bg-card);
+  background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -170,10 +173,10 @@
 }
 
 .inventory-table th {
-  background: rgba(10, 15, 26, 0.95);
-  color: #64748b;
+  background: #fff8fa;
+  color: #78716c;
   font-size: 0.725rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 1rem 1.25rem;
@@ -181,8 +184,8 @@
 }
 
 .inventory-table td {
-  padding: 0.9rem 1.25rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
   color: var(--text-primary);
   vertical-align: middle;
 }
@@ -192,27 +195,27 @@
 }
 
 .inventory-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: #fff0f5;
 }
 
-/* Elementos de Celda */
+/* Pastilla SKU Plateada Silver */
 .sku-badge {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.825rem;
-  font-weight: 600;
-  background: rgba(99, 102, 241, 0.12);
-  color: #a5b4fc;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
   padding: 0.3rem 0.65rem;
   border-radius: 6px;
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  border: 1px solid #cbd5e1;
   display: inline-block;
   white-space: nowrap;
 }
 
 .product-name-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.925rem;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .product-name-sub {
@@ -222,9 +225,9 @@
 }
 
 .price-tag {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.95rem;
-  color: #34d399;
+  color: #059669;
 }
 
 .cost-tag {
@@ -239,27 +242,27 @@
   gap: 0.45rem;
   padding: 0.35rem 0.75rem;
   border-radius: 20px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.8rem;
   white-space: nowrap;
 }
 
 .stock-pill.optimal {
-  background: var(--success-bg);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
 }
 
 .stock-pill.low {
-  background: var(--warning-bg);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
 .stock-pill.out {
-  background: var(--danger-bg);
-  color: #f87171;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
 }
 
 .stock-dot {
@@ -268,34 +271,34 @@
   border-radius: 50%;
 }
 
-.stock-pill.optimal .stock-dot { background-color: #34d399; box-shadow: 0 0 6px #34d399; }
-.stock-pill.low .stock-dot { background-color: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
-.stock-pill.out .stock-dot { background-color: #f87171; box-shadow: 0 0 6px #f87171; }
+.stock-pill.optimal .stock-dot { background-color: #10b981; }
+.stock-pill.low .stock-dot { background-color: #f59e0b; }
+.stock-pill.out .stock-dot { background-color: #e11d48; }
 
 /* Attribute Pills */
 .attribute-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   padding: 0.2rem 0.55rem;
   border-radius: 14px;
   font-size: 0.75rem;
-  color: #cbd5e1;
+  color: #475569;
   margin-right: 0.3rem;
   white-space: nowrap;
 }
 
 .attribute-key {
-  color: #818cf8;
-  font-weight: 500;
+  color: var(--accent-gold);
+  font-weight: 700;
 }
 
 .btn-icon-action {
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: #94a3b8;
   cursor: pointer;
   padding: 0.35rem;
   border-radius: 6px;
@@ -303,8 +306,8 @@
 }
 
 .btn-icon-action:hover {
-  background: rgba(244, 63, 94, 0.15);
-  color: #f87171;
+  background: #fff1f2;
+  color: #e11d48;
 }
 
 .empty-state {
