@@ -145,7 +145,7 @@ export function CashRegisterPage() {
               {isOpen ? <Unlock size={24} /> : <Lock size={24} />}
             </div>
             <div>
-              <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800 }}>
+              <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                 {isOpen ? 'Turno de Caja Abierto' : 'Caja Cerrada'}
               </h2>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
@@ -167,7 +167,7 @@ export function CashRegisterPage() {
       {/* Si la caja está CERRADA -> Formulario de Apertura */}
       {!isOpen && (
         <div className="table-card" style={{ padding: '1.75rem', maxWidth: '540px' }}>
-          <h3 style={{ marginTop: 0, fontWeight: 800 }}>Apertura de Turno POS</h3>
+          <h3 style={{ marginTop: 0, fontWeight: 800, color: 'var(--text-primary)' }}>Apertura de Turno POS</h3>
           <form onSubmit={handleOpenRegister}>
             <div className="form-group">
               <label className="form-label">Monto Inicial Base (Efectivo USD) *</label>
