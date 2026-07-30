@@ -1,6 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Unlock, DollarSign, AlertCircle, CheckCircle2, FileSpreadsheet, ShieldAlert } from 'lucide-react';
+import {
+  Lock,
+  Unlock,
+  DollarSign,
+  AlertCircle,
+  CheckCircle2,
+  ShieldAlert,
+  Clock,
+  History,
+  Check,
+  TrendingUp,
+} from 'lucide-react';
 import './CashRegisterPage.css';
 
 const API_BASE_URL = '/api';
@@ -116,6 +127,9 @@ export function CashRegisterPage() {
   const isOpen = registerState?.isOpen;
   const reg = registerState?.register;
   const summary = registerState?.salesSummary;
+  const lastClosed = registerState?.lastClosedRegister;
+  const pendingCount = registerState?.pendingSalesCount || 0;
+  const pendingUsd = registerState?.pendingSalesUsd || 0;
 
   return (
     <div className="cash-register-container">
@@ -126,8 +140,8 @@ export function CashRegisterPage() {
         </div>
       )}
 
-      {/* Tarjeta de Estado del Turno */}
-      <div className="table-card" style={{ padding: '1.75rem' }}>
+      {/* Encabezado Principal de Estado */}
+      <div className="table-card" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <div
@@ -146,12 +160,12 @@ export function CashRegisterPage() {
             </div>
             <div>
               <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                {isOpen ? 'Turno de Caja Abierto' : 'Caja Cerrada'}
+                {isOpen ? 'Turno de Caja Abierto' : 'Caja Cerrada (Turno Inactivo)'}
               </h2>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
                 {isOpen
                   ? `Abierto por ${reg?.openedBy?.username} a las ${new Date(reg?.openedAt).toLocaleTimeString()}`
-                  : 'Registra el saldo inicial en efectivo para abrir turno y comenzar a cobrar.'}
+                  : 'Abre el turno indicando el fondo base para iniciar las cobranzas.'}
               </span>
             </div>
           </div>
@@ -164,45 +178,115 @@ export function CashRegisterPage() {
         </div>
       </div>
 
-      {/* Si la caja está CERRADA -> Formulario de Apertura */}
+      {/* Si la caja está CERRADA -> Rediseño Enterprise de 2 Columnas */}
       {!isOpen && (
-        <div className="table-card" style={{ padding: '1.75rem', maxWidth: '540px' }}>
-          <h3 style={{ marginTop: 0, fontWeight: 800, color: 'var(--text-primary)' }}>Apertura de Turno POS</h3>
-          <form onSubmit={handleOpenRegister}>
-            <div className="form-group">
-              <label className="form-label">Monto Inicial Base (Efectivo USD) *</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                className="form-input"
-                style={{ paddingLeft: '1rem' }}
-                placeholder="50.00"
-                value={openingAmountUsd}
-                onChange={(e) => setOpeningAmountUsd(e.target.value)}
-                required
-              />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          {/* Columna Izquierda: Auditoría del Turno Anterior & Ventas Acumuladas */}
+          <div className="table-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <History size={20} color="var(--accent-gold)" />
+              <h3 style={{ margin: 0, fontWeight: 800, color: 'var(--text-primary)' }}>Estado & Arqueo Previo</h3>
             </div>
 
-            <div className="form-group" style={{ marginTop: '1rem' }}>
-              <label className="form-label">Notas de Apertura</label>
-              <input
-                type="text"
-                className="form-input"
-                style={{ paddingLeft: '1rem' }}
-                placeholder="ej. Turno Mañana - Fondo de caja entregado por supervisión"
-                value={openingNotes}
-                onChange={(e) => setOpeningNotes(e.target.value)}
-              />
-            </div>
+            {pendingCount > 0 ? (
+              <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1rem', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#059669', fontWeight: 700 }}>
+                  <TrendingUp size={18} />
+                  <span>Ventas del día detectadas</span>
+                </div>
+                <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  Se registraron <strong>{pendingCount} ventas</strong> hoy con un acumulado de <strong>${pendingUsd.toFixed(2)} USD</strong>. Se incluirán automáticamente en el nuevo turno al abrir la caja.
+                </p>
+              </div>
+            ) : (
+              <div style={{ background: '#fff8fa', border: '1px solid #fbcfe8', padding: '1rem', borderRadius: '12px' }}>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  No hay ventas pendientes por auditar. El turno iniciará limpio con tu fondo base.
+                </p>
+              </div>
+            )}
 
-            <div style={{ marginTop: '1.5rem' }}>
-              <button type="submit" className="btn-save" style={{ width: '100%' }} disabled={isSubmitting}>
-                <Unlock size={18} />
-                <span>{isSubmitting ? 'Abriendo Turno...' : 'Abrir Turno de Caja'}</span>
-              </button>
-            </div>
-          </form>
+            {lastClosed && (
+              <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '1rem', marginTop: '0.5rem' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  Último Cierre Registrado
+                </h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '0.3rem' }}>
+                  <span>Cerrado por:</span>
+                  <strong>{lastClosed.closedBy?.username || 'Sistema'}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '0.3rem' }}>
+                  <span>Fecha:</span>
+                  <span>{new Date(lastClosed.closedAt).toLocaleString()}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '0.3rem' }}>
+                  <span>Total Entregado:</span>
+                  <strong style={{ color: '#059669' }}>${Number(lastClosed.closingAmountUsd).toFixed(2)} USD</strong>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Columna Derecha: Formulario de Apertura */}
+          <div className="table-card" style={{ padding: '1.5rem' }}>
+            <h3 style={{ marginTop: 0, fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1rem' }}>
+              Apertura de Turno POS
+            </h3>
+
+            <form onSubmit={handleOpenRegister}>
+              <div className="form-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <label className="form-label" style={{ margin: 0 }}>
+                    Monto Inicial Base (Efectivo USD) *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setOpeningAmountUsd('50')}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--accent-gold)',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Usar $50.00 base
+                  </button>
+                </div>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className="form-input"
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="50.00"
+                  value={openingAmountUsd}
+                  onChange={(e) => setOpeningAmountUsd(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ marginTop: '1rem' }}>
+                <label className="form-label">Notas de Apertura</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="ej. Turno Mañana - Entregado en sencillo"
+                  value={openingNotes}
+                  onChange={(e) => setOpeningNotes(e.target.value)}
+                />
+              </div>
+
+              <div style={{ marginTop: '1.5rem' }}>
+                <button type="submit" className="btn-save" style={{ width: '100%' }} disabled={isSubmitting}>
+                  <Unlock size={18} />
+                  <span>{isSubmitting ? 'Abriendo Turno...' : '🔓 Iniciar Turno de Caja POS'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
@@ -211,7 +295,9 @@ export function CashRegisterPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           {/* Columna Izquierda: Auditoría del Turno */}
           <div className="table-card" style={{ padding: '1.5rem' }}>
-            <h3 style={{ marginTop: 0, fontWeight: 800, marginBottom: '1rem' }}>Resumen de Cobros en Turno</h3>
+            <h3 style={{ marginTop: 0, fontWeight: 800, marginBottom: '1rem', color: 'var(--text-primary)' }}>
+              Resumen de Cobros en Turno
+            </h3>
 
             <div className="totals-summary-card" style={{ marginBottom: '1.25rem' }}>
               <div className="total-row-main">
@@ -219,7 +305,7 @@ export function CashRegisterPage() {
                 <strong style={{ color: 'var(--accent-gold)' }}>${summary?.openingAmountUsd?.toFixed(2)}</strong>
               </div>
               <div className="total-row-main" style={{ marginTop: '0.5rem' }}>
-                <span>Total Ventas Turno:</span>
+                <span>Total Ventas ({summary?.salesCount || 0} facturas):</span>
                 <strong style={{ color: '#059669' }}>${summary?.totalSalesUsd?.toFixed(2)}</strong>
               </div>
               <div className="total-row-main" style={{ marginTop: '0.5rem', borderTop: '2px dashed #fbcfe8', paddingTop: '0.75rem' }}>
@@ -228,37 +314,44 @@ export function CashRegisterPage() {
               </div>
             </div>
 
-            <h4 style={{ margin: '1rem 0 0.5rem 0', fontWeight: 800, fontSize: '0.95rem' }}>
+            <h4 style={{ margin: '1rem 0 0.5rem 0', fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
               Desglose por Métodos de Pago
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {summary?.paymentsBreakdown?.map((p, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: 'flex',
-                    justify: 'space-between',
-                    alignItems: 'center',
-                    background: '#fff8fa',
-                    padding: '0.6rem 0.85rem',
-                    borderRadius: '8px',
-                    border: '1px solid #fbcfe8',
-                  }}
-                >
-                  <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{p.name}</span>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 800, color: 'var(--text-primary)' }}>
-                      {p.currency === 'USD' ? `$${p.totalOriginal.toFixed(2)}` : `${p.totalOriginal.toFixed(2)} ${p.currency}`}
-                    </div>
-                    {p.currency !== 'USD' && (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        eq. ${p.totalUsd.toFixed(2)} USD
+
+            {summary?.paymentsBreakdown?.length === 0 ? (
+              <div style={{ background: '#fff8fa', padding: '1rem', borderRadius: '10px', color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center' }}>
+                No hay pagos registrados aún en este turno.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {summary?.paymentsBreakdown?.map((p, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      justify: 'space-between',
+                      alignItems: 'center',
+                      background: '#fff8fa',
+                      padding: '0.6rem 0.85rem',
+                      borderRadius: '8px',
+                      border: '1px solid #fbcfe8',
+                    }}
+                  >
+                    <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{p.name}</span>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: 800, color: 'var(--text-primary)' }}>
+                        {p.currency === 'USD' ? `$${p.totalOriginal.toFixed(2)}` : `${p.totalOriginal.toFixed(2)} ${p.currency}`}
                       </div>
-                    )}
+                      {p.currency !== 'USD' && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          eq. ${p.totalUsd.toFixed(2)} USD
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Columna Derecha: Formulario de Arqueo y Cierre */}
@@ -270,7 +363,26 @@ export function CashRegisterPage() {
 
             <form onSubmit={handleCloseRegister}>
               <div className="form-group" style={{ marginTop: '1rem' }}>
-                <label className="form-label">Total Físico Contado (Efectivo USD) *</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <label className="form-label" style={{ margin: 0 }}>
+                    Total Físico Contado (Efectivo USD) *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setClosingAmountUsd(summary?.expectedTotalUsd?.toFixed(2) || '0.00')}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--accent-gold)',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Usar Total Esperado (${summary?.expectedTotalUsd?.toFixed(2) || '0.00'})
+                  </button>
+                </div>
+
                 <input
                   type="number"
                   step="0.01"
@@ -342,7 +454,7 @@ export function CashRegisterPage() {
                   disabled={isSubmitting}
                 >
                   <Lock size={18} />
-                  <span>{isSubmitting ? 'Cerrando Caja...' : 'Cerrar Turno y Emitir Reporte Z'}</span>
+                  <span>{isSubmitting ? 'Cerrando Caja...' : '🔒 Cerrar Turno y Emitir Reporte Z'}</span>
                 </button>
               </div>
             </form>
