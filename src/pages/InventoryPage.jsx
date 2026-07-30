@@ -10,7 +10,7 @@ import {
 } from '../services/inventoryService';
 import { ProductModal } from '../components/ProductModal';
 import { CategoryModal } from '../components/CategoryModal';
-import { Search, Plus, Filter, AlertTriangle, PackageCheck, Archive, Tag, Truck } from 'lucide-react';
+import { Search, Plus, Filter, AlertTriangle, PackageCheck, Archive, Tag } from 'lucide-react';
 import './InventoryPage.css';
 
 export function InventoryPage() {
@@ -74,23 +74,22 @@ export function InventoryPage() {
 
   return (
     <div className="inventory-container">
-      {/* Barra de Filtros y Acciones */}
+      {/* Control & Filter Actions Bar */}
       <div className="inventory-actions-bar">
         <div className="filter-group">
           <div className="search-input-wrapper">
-            <Search className="input-icon" size={18} />
             <input
               type="text"
-              className="form-input"
-              placeholder="Buscar por SKU, Nombre o Atributo..."
+              className="inventory-search-input"
+              placeholder="Buscar SKU, producto o atributo..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            <Search className="input-icon" size={18} />
           </div>
 
           <select
-            className="form-input"
-            style={{ paddingLeft: '1rem', width: 'auto' }}
+            className="select-filter"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
@@ -104,12 +103,8 @@ export function InventoryPage() {
 
           <button
             type="button"
-            className={`btn-action-secondary ${lowStockOnly ? 'active' : ''}`}
+            className={`btn-filter-toggle ${lowStockOnly ? 'active' : ''}`}
             onClick={() => setLowStockOnly(!lowStockOnly)}
-            style={{
-              borderColor: lowStockOnly ? '#fb923c' : undefined,
-              color: lowStockOnly ? '#fb923c' : undefined,
-            }}
           >
             <AlertTriangle size={16} />
             <span>Bajo Stock</span>
@@ -135,84 +130,91 @@ export function InventoryPage() {
         </div>
       )}
 
-      {/* Tabla de Productos */}
+      {/* Modern Inventory Table */}
       <div className="table-card">
-        {loading ? (
-          <div className="empty-state">
-            <div className="spinner" style={{ margin: '0 auto 1rem auto', width: '30px', height: '30px' }}></div>
-            <p>Cargando inventario desde Supabase...</p>
-          </div>
-        ) : variants.length === 0 ? (
-          <div className="empty-state">
-            <PackageCheck size={48} />
-            <h4>No se encontraron productos</h4>
-            <p>Intenta cambiar los filtros de búsqueda o agrega un nuevo producto.</p>
-          </div>
-        ) : (
-          <table className="inventory-table">
-            <thead>
-              <tr>
-                <th>SKU</th>
-                <th>Producto Base / Variante</th>
-                <th>Categoría</th>
-                <th>Proveedor</th>
-                <th>Costo ($)</th>
-                <th>Precio ($)</th>
-                <th>Stock</th>
-                <th>Atributos</th>
-                <th style={{ textAlign: 'right' }}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {variants.map((v) => {
-                const isOut = v.stock === 0;
-                const isLow = v.stock > 0 && v.stock <= 5;
-                return (
-                  <tr key={v.id}>
-                    <td>
-                      <span className="sku-badge">{v.sku}</span>
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 600, color: '#ffffff' }}>{v.variantName || v.product?.baseName}</div>
-                      {v.product?.baseName !== v.variantName && (
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{v.product?.baseName}</div>
-                      )}
-                    </td>
-                    <td>{v.product?.category?.name || 'Sin Categoría'}</td>
-                    <td>{v.product?.supplier?.name || 'N/A'}</td>
-                    <td style={{ color: '#94a3b8' }}>${Number(v.costUsd).toFixed(2)}</td>
-                    <td style={{ fontWeight: 600, color: '#4ade80' }}>${Number(v.priceUsd).toFixed(2)}</td>
-                    <td>
-                      <span className={`stock-badge ${isOut ? 'out' : isLow ? 'low' : 'optimal'}`}>
-                        {isOut ? 'Agotado (0)' : isLow ? `Bajo (${v.stock})` : `${v.stock} un.`}
-                      </span>
-                    </td>
-                    <td>
-                      {v.attributes && typeof v.attributes === 'object' ? (
-                        Object.entries(v.attributes).map(([key, val]) => (
-                          <span key={key} className="attribute-chip">
-                            {key}: {val}
-                          </span>
-                        ))
-                      ) : (
-                        <span style={{ color: '#64748b', fontSize: '0.8rem' }}>-</span>
-                      )}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button
-                        onClick={() => handleArchiveVariant(v.id)}
-                        className="btn-close-modal"
-                        title="Archivar Variante"
-                      >
-                        <Archive size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+        <div className="table-responsive">
+          {loading ? (
+            <div className="empty-state">
+              <div className="spinner" style={{ margin: '0 auto 1rem auto', width: '32px', height: '32px' }}></div>
+              <p>Sincronizando catálogo con Supabase...</p>
+            </div>
+          ) : variants.length === 0 ? (
+            <div className="empty-state">
+              <PackageCheck size={52} className="empty-state-icon" />
+              <h4>No se encontraron productos</h4>
+              <p>Intenta ajustar los criterios de búsqueda o registra tu primer producto.</p>
+            </div>
+          ) : (
+            <table className="inventory-table">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Producto / Variante</th>
+                  <th>Categoría</th>
+                  <th>Proveedor</th>
+                  <th>Costo (USD)</th>
+                  <th>Precio Venta</th>
+                  <th>Estado Stock</th>
+                  <th>Atributos</th>
+                  <th style={{ textAlign: 'right' }}>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {variants.map((v) => {
+                  const isOut = v.stock === 0;
+                  const isLow = v.stock > 0 && v.stock <= 5;
+                  return (
+                    <tr key={v.id}>
+                      <td>
+                        <span className="sku-badge">{v.sku}</span>
+                      </td>
+                      <td>
+                        <div className="product-name-title">{v.variantName || v.product?.baseName}</div>
+                        {v.product?.baseName && v.product?.baseName !== v.variantName && (
+                          <div className="product-name-sub">{v.product?.baseName}</div>
+                        )}
+                      </td>
+                      <td>{v.product?.category?.name || 'Sin Categoría'}</td>
+                      <td style={{ color: 'var(--text-secondary)' }}>{v.product?.supplier?.name || 'N/A'}</td>
+                      <td>
+                        <span className="cost-tag">${Number(v.costUsd).toFixed(2)}</span>
+                      </td>
+                      <td>
+                        <span className="price-tag">${Number(v.priceUsd).toFixed(2)}</span>
+                      </td>
+                      <td>
+                        <span className={`stock-pill ${isOut ? 'out' : isLow ? 'low' : 'optimal'}`}>
+                          <span className="stock-dot"></span>
+                          <span>{isOut ? 'Agotado' : isLow ? `Bajo (${v.stock})` : `${v.stock} un.`}</span>
+                        </span>
+                      </td>
+                      <td>
+                        {v.attributes && typeof v.attributes === 'object' && Object.keys(v.attributes).length > 0 ? (
+                          Object.entries(v.attributes).map(([key, val]) => (
+                            <span key={key} className="attribute-pill">
+                              <span className="attribute-key">{key}:</span> {val}
+                            </span>
+                          ))
+                        ) : (
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>-</span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <button
+                          onClick={() => handleArchiveVariant(v.id)}
+                          className="btn-icon-action"
+                          title="Archivar Variante"
+                        >
+                          <Archive size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       {/* Modales */}
