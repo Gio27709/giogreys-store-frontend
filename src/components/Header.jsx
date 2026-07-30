@@ -8,8 +8,10 @@ export function Header({ activeTab }) {
   const titleMap = {
     pos: 'Punto de Venta (POS Multimoneda)',
     inventory: 'Gestión de Inventario & Productos',
+    history: 'Historial Facturación de Ventas',
     customers: 'Directorio de Clientes (CRM)',
-    dashboard: 'Panel Principal de Métricas',
+    settings: 'Configuración & Tasas de Cambio',
+    dashboard: 'Panel Principal de Métricas Financieras',
   };
 
   return (

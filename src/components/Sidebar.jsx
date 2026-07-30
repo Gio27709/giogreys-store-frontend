@@ -7,6 +7,8 @@ import {
   Truck,
   ShoppingCart,
   Users,
+  Receipt,
+  Settings,
   LogOut,
 } from 'lucide-react';
 import './Sidebar.css';
@@ -50,6 +52,16 @@ export function Sidebar({ activeTab, setActiveTab }) {
         </button>
 
         <button
+          className={`sidebar-link ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => setActiveTab('history')}
+        >
+          <div className="sidebar-link-left">
+            <Receipt className="sidebar-icon" size={18} />
+            <span>Historial de Ventas</span>
+          </div>
+        </button>
+
+        <button
           className={`sidebar-link ${activeTab === 'customers' ? 'active' : ''}`}
           onClick={() => setActiveTab('customers')}
         >
@@ -69,25 +81,15 @@ export function Sidebar({ activeTab, setActiveTab }) {
           </div>
         </button>
 
-        <div className="nav-group-label" style={{ marginTop: '0.85rem' }}>Catálogo & Compras</div>
+        <div className="nav-group-label" style={{ marginTop: '0.85rem' }}>Configuración & Sistema</div>
 
         <button
-          className={`sidebar-link ${activeTab === 'categories' ? 'active' : ''}`}
-          onClick={() => setActiveTab('inventory')}
+          className={`sidebar-link ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
         >
           <div className="sidebar-link-left">
-            <Tag className="sidebar-icon" size={18} />
-            <span>Categorías</span>
-          </div>
-        </button>
-
-        <button
-          className={`sidebar-link ${activeTab === 'suppliers' ? 'active' : ''}`}
-          onClick={() => setActiveTab('inventory')}
-        >
-          <div className="sidebar-link-left">
-            <Truck className="sidebar-icon" size={18} />
-            <span>Proveedores</span>
+            <Settings className="sidebar-icon" size={18} />
+            <span>Configuración & Tasas</span>
           </div>
         </button>
       </nav>
