@@ -83,7 +83,9 @@ export function SalesHistoryPage() {
                   return (
                     <tr key={s.id}>
                       <td>
-                        <span className="sku-badge">{s.saleNumber || 'INV-FACTURA'}</span>
+                        <span className="sku-badge">
+                          {s.saleNumber || `INV-${s.id.substring(0, 8).toUpperCase()}`}
+                        </span>
                       </td>
                       <td style={{ color: 'var(--text-secondary)' }}>{dateStr}</td>
                       <td style={{ fontWeight: 700 }}>{s.customer?.fullName || 'Cliente General'}</td>

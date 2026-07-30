@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getProductsAPI, getCategoriesAPI } from '../services/inventoryService';
-import { getCustomersAPI, getCurrenciesAPI, getPaymentMethodsAPI, processSaleAPI } from '../services/posService';
+import { getCustomersAPI, createCustomerAPI, getCurrenciesAPI, getPaymentMethodsAPI, processSaleAPI } from '../services/posService';
 import { CheckoutModal } from '../components/CheckoutModal';
-import { Search, ShoppingBag, Plus, Minus, Trash2, CreditCard, User, AlertCircle } from 'lucide-react';
+import { Search, ShoppingBag, Plus, Trash2, CreditCard, UserPlus, X } from 'lucide-react';
 import './PosPage.css';
 
 export function PosPage() {
@@ -18,6 +18,13 @@ export function PosPage() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [error, setError] = useState(null);
+
+  // Modal para crear cliente rápido en la caja POS
+  const [showNewCustomerModal, setShowNewCustomerModal] = useState(false);
+  const [newCustName, setNewCustName] = useState('');
+  const [newCustIdNumber, setNewCustIdNumber] = useState('');
+  const [newCustPhone, setNewCustPhone] = useState('');
+  const [isSubmittingCust, setIsSubmittingCust] = useState(false);
 
   // Carrito de Compras POS
   const [cart, setCart] = useState([]);
@@ -40,9 +47,10 @@ export function PosPage() {
       setCurrencies(currsData);
       setPaymentMethods(pmsData);
 
-      if (custsData.length > 0 && !selectedCustomerId) {
-        setSelectedCustomerId(custsData[0].id);
-      }
+      setSelectedCustomerId((prev) => {
+        if (prev) return prev;
+        return custsData.length > 0 ? custsData[0].id : '';
+      });
     } catch (err) {
       setError(err.message || 'Error al cargar datos de POS');
     } finally {
@@ -64,6 +72,34 @@ export function PosPage() {
     const cop = currencies.find((c) => c.currencyCode === 'COP');
     return cop ? Number(cop.rateToUsd) : 4000;
   }, [currencies]);
+
+  // Agregar cliente rápido
+  const handleQuickCreateCustomer = async (e) => {
+    e.preventDefault();
+    if (!newCustName.trim()) return;
+
+    try {
+      setIsSubmittingCust(true);
+      const newCust = await createCustomerAPI(token, {
+        fullName: newCustName.trim(),
+        idNumber: newCustIdNumber.trim() || undefined,
+        phone: newCustPhone.trim() || undefined,
+      });
+
+      setShowNewCustomerModal(false);
+      setNewCustName('');
+      setNewCustIdNumber('');
+      setNewCustPhone('');
+
+      const updatedCusts = await getCustomersAPI(token);
+      setCustomers(updatedCusts);
+      setSelectedCustomerId(newCust.id);
+    } catch (err) {
+      alert(err.message || 'Error al registrar cliente');
+    } finally {
+      setIsSubmittingCust(false);
+    }
+  };
 
   // Agregar al carrito
   const addToCart = (variant) => {
@@ -168,7 +204,6 @@ export function PosPage() {
 
         {error && (
           <div className="login-error-alert">
-            <AlertCircle size={18} />
             <span>{error}</span>
           </div>
         )}
@@ -218,9 +253,29 @@ export function PosPage() {
         </div>
 
         <div style={{ padding: '0.75rem 1rem', background: '#ffffff', borderBottom: '1px solid var(--border-color)' }}>
-          <label className="form-label" style={{ fontSize: '0.775rem' }}>
-            Cliente Registrado
-          </label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+            <label className="form-label" style={{ fontSize: '0.775rem', margin: 0 }}>
+              Cliente de la Venta
+            </label>
+            <button
+              onClick={() => setShowNewCustomerModal(true)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--accent-gold)',
+                fontSize: '0.775rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+              }}
+            >
+              <UserPlus size={14} />
+              <span>+ Nuevo</span>
+            </button>
+          </div>
+
           <select
             className="select-filter"
             style={{ width: '100%' }}
@@ -229,7 +284,7 @@ export function PosPage() {
           >
             {customers.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.fullName}
+                {c.fullName} {c.idNumber ? `(${c.idNumber})` : ''}
               </option>
             ))}
           </select>
@@ -297,6 +352,68 @@ export function PosPage() {
           </button>
         </div>
       </div>
+
+      {/* Modal Rápido de Nuevo Cliente */}
+      {showNewCustomerModal && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '440px' }}>
+            <div className="modal-header">
+              <h2>Registrar Cliente Rápido</h2>
+              <button onClick={() => setShowNewCustomerModal(false)} className="btn-close-modal">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleQuickCreateCustomer}>
+              <div className="form-group">
+                <label className="form-label">Nombre del Cliente *</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="ej. Juan Pérez"
+                  value={newCustName}
+                  onChange={(e) => setNewCustName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ marginTop: '0.85rem' }}>
+                <label className="form-label">Cédula / RIF</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="V-12345678"
+                  value={newCustIdNumber}
+                  onChange={(e) => setNewCustIdNumber(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginTop: '0.85rem' }}>
+                <label className="form-label">Teléfono</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="+58 412-0000000"
+                  value={newCustPhone}
+                  onChange={(e) => setNewCustPhone(e.target.value)}
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowNewCustomerModal(false)} className="btn-cancel">
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-save" disabled={isSubmittingCust}>
+                  {isSubmittingCust ? 'Guardando...' : 'Crear y Seleccionar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {showCheckoutModal && (
         <CheckoutModal
