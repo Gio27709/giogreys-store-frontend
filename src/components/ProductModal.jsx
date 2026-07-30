@@ -79,6 +79,7 @@ export function ProductModal({ categories, suppliers, onClose, onSave }) {
           costUsd: parseFloat(v.costUsd) || 0,
           priceUsd: parseFloat(v.priceUsd) || 0,
           stock: parseInt(v.stock, 10) || 0,
+          imageUrl: v.imageUrl?.trim() || undefined,
           attributes: {
             ...(v.talla ? { talla: v.talla } : {}),
             ...(v.color ? { color: v.color } : {}),
@@ -256,6 +257,18 @@ export function ProductModal({ categories, suppliers, onClose, onSave }) {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '0.85rem' }}>
+                <label className="form-label">URL de Imagen (Opcional)</label>
+                <input
+                  type="url"
+                  className="form-input"
+                  style={{ paddingLeft: '1rem' }}
+                  placeholder="https://ejemplo.com/foto.jpg"
+                  value={variant.imageUrl || ''}
+                  onChange={(e) => handleVariantChange(index, 'imageUrl', e.target.value)}
+                />
               </div>
 
               <div className="form-grid-2">

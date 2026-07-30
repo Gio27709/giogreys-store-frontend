@@ -199,9 +199,23 @@ export function InventoryPage() {
                         <span className="sku-badge">{v.sku}</span>
                       </td>
                       <td>
-                        <div className="product-title-cell">
-                          <span className="variant-name">{v.variantName || v.product?.baseName}</span>
-                          <span className="base-name">{v.product?.baseName}</span>
+                        <div className="product-title-cell" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          {v.imageUrl || v.product?.imageUrl ? (
+                            <img
+                              src={v.imageUrl || v.product?.imageUrl}
+                              alt={v.variantName}
+                              style={{ width: '38px', height: '38px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-color)', flexShrink: 0 }}
+                              onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div style={{ width: '38px', height: '38px', borderRadius: '8px', background: '#fff8fa', border: '1px dashed #fbcfe8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-gold)', flexShrink: 0, fontWeight: 700, fontSize: '0.8rem' }}>
+                              {(v.variantName || v.product?.baseName || 'P').substring(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span className="variant-name">{v.variantName || v.product?.baseName}</span>
+                            <span className="base-name">{v.product?.baseName}</span>
+                          </div>
                         </div>
                       </td>
                       <td>{v.product?.category?.name || 'General'}</td>

@@ -223,6 +223,14 @@ export function PosPage() {
                   className={`pos-product-card ${isOut ? 'out-of-stock' : ''}`}
                   onClick={() => !isOut && addToCart(v)}
                 >
+                  {v.imageUrl || v.product?.imageUrl ? (
+                    <img
+                      src={v.imageUrl || v.product?.imageUrl}
+                      alt={v.variantName}
+                      style={{ width: '100%', height: '80px', borderRadius: '8px', objectFit: 'cover', marginBottom: '0.5rem' }}
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  ) : null}
                   <div>
                     <span className="pos-card-sku">{v.sku}</span>
                     <div className="pos-card-title">{v.variantName || v.product?.baseName}</div>

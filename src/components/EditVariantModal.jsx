@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Edit3, Save, AlertCircle } from 'lucide-react';
+import { X, Edit3, Save, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import './EditVariantModal.css';
 
 export function EditVariantModal({ variant, onClose, onSave }) {
@@ -8,6 +8,7 @@ export function EditVariantModal({ variant, onClose, onSave }) {
   const [costUsd, setCostUsd] = useState('');
   const [priceUsd, setPriceUsd] = useState('');
   const [stock, setStock] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -18,6 +19,7 @@ export function EditVariantModal({ variant, onClose, onSave }) {
       setCostUsd(variant.costUsd ? Number(variant.costUsd).toString() : '');
       setPriceUsd(variant.priceUsd ? Number(variant.priceUsd).toString() : '');
       setStock(variant.stock !== undefined ? variant.stock.toString() : '');
+      setImageUrl(variant.imageUrl || variant.product?.imageUrl || '');
     }
   }, [variant]);
 
@@ -34,6 +36,7 @@ export function EditVariantModal({ variant, onClose, onSave }) {
         costUsd: parseFloat(costUsd) || 0,
         priceUsd: parseFloat(priceUsd) || 0,
         stock: parseInt(stock, 10) || 0,
+        imageUrl: imageUrl.trim() || undefined,
       });
       onClose();
     } catch (err) {
@@ -86,6 +89,32 @@ export function EditVariantModal({ variant, onClose, onSave }) {
               onChange={(e) => setSku(e.target.value)}
               required
             />
+          </div>
+
+          <div className="form-group" style={{ marginTop: '1rem' }}>
+            <label className="form-label">URL de la Imagen del Producto (Opcional)</label>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <input
+                type="url"
+                className="form-input"
+                style={{ paddingLeft: '1rem', flex: 1 }}
+                placeholder="https://ejemplo.com/foto-producto.jpg"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt="Vista previa"
+                  style={{ width: '42px', height: '42px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              ) : (
+                <div style={{ width: '42px', height: '42px', borderRadius: '8px', background: '#fff8fa', border: '1px dashed #fbcfe8', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                  <ImageIcon size={18} />
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="form-grid-3" style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.85rem' }}>
