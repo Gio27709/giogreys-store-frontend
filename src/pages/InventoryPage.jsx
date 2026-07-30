@@ -7,11 +7,13 @@ import {
   createCategoryAPI,
   getSuppliersAPI,
   archiveVariantAPI,
+  updateVariantAPI,
 } from '../services/inventoryService';
 import { ProductModal } from '../components/ProductModal';
 import { CategoryModal } from '../components/CategoryModal';
+import { EditVariantModal } from '../components/EditVariantModal';
 import { exportToCSV } from '../utils/exportUtils';
-import { Search, Plus, Filter, AlertTriangle, PackageCheck, Archive, Tag, FileSpreadsheet } from 'lucide-react';
+import { Search, Plus, Filter, AlertTriangle, PackageCheck, Archive, Tag, FileSpreadsheet, Edit3 } from 'lucide-react';
 import './InventoryPage.css';
 
 export function InventoryPage() {
@@ -28,6 +30,7 @@ export function InventoryPage() {
   // Modales
   const [showProductModal, setShowProductModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [editingVariant, setEditingVariant] = useState(null);
 
   const loadInventory = useCallback(async () => {
     try {
@@ -42,7 +45,7 @@ export function InventoryPage() {
       setCategories(catsData);
       setSuppliers(suppsData);
     } catch (err) {
-      setError(err.message || 'Error al cargar el inventario');
+      setError(err.message || 'Error al cargar inventario');
     } finally {
       setLoading(false);
     }
@@ -57,63 +60,68 @@ export function InventoryPage() {
     await loadInventory();
   };
 
-  const handleCreateCategory = async (name) => {
-    await createCategoryAPI(token, name);
+  const handleCreateCategory = async (catData) => {
+    await createCategoryAPI(token, catData);
+    await loadInventory();
+  };
+
+  const handleUpdateVariant = async (variantId, variantData) => {
+    await updateVariantAPI(token, variantId, variantData);
     await loadInventory();
   };
 
   const handleArchiveVariant = async (variantId) => {
-    if (window.confirm('¿Deseas archivar esta variante de producto?')) {
-      try {
-        await archiveVariantAPI(token, variantId);
-        await loadInventory();
-      } catch (err) {
-        alert(err.message);
-      }
+    if (!window.confirm('¿Seguro que deseas desactivar esta variante de producto?')) return;
+    try {
+      await archiveVariantAPI(token, variantId);
+      await loadInventory();
+    } catch (err) {
+      alert(err.message || 'Error al desactivar producto');
     }
   };
 
   return (
     <div className="inventory-container">
-      {/* Control & Filter Actions Bar */}
       <div className="inventory-actions-bar">
-        <div className="filter-group">
-          <div className="search-input-wrapper">
-            <input
-              type="text"
-              className="inventory-search-input"
-              placeholder="Buscar SKU, producto o atributo..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Search className="input-icon" size={18} />
-          </div>
-
-          <select
-            className="select-filter"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">Todas las Categorías</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c._count?.products || 0})
-              </option>
-            ))}
-          </select>
-
-          <button
-            type="button"
-            className={`btn-filter-toggle ${lowStockOnly ? 'active' : ''}`}
-            onClick={() => setLowStockOnly(!lowStockOnly)}
-          >
-            <AlertTriangle size={16} />
-            <span>Bajo Stock</span>
-          </button>
+        <div className="search-input-wrapper">
+          <input
+            type="text"
+            className="inventory-search-input"
+            placeholder="Buscar SKU, producto o atributo..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Search className="input-icon" size={18} />
         </div>
 
-        <div className="action-buttons-group">
-          <button onClick={() => setShowCategoryModal(true)} className="btn-action-secondary">
+        <select
+          className="select-filter"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="">Todas las Categorías</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name} ({c._count?.products || 0})
+            </option>
+          ))}
+        </select>
+
+        <button
+          type="button"
+          className={`btn-filter-toggle ${lowStockOnly ? 'active' : ''}`}
+          onClick={() => setLowStockOnly(!lowStockOnly)}
+        >
+          <AlertTriangle size={16} />
+          <span>Bajo Stock</span>
+        </button>
+
+        <div className="actions-right-group">
+          <button
+            type="button"
+            className="btn-action-secondary"
+            onClick={() => setShowCategoryModal(true)}
+          >
             <Tag size={16} />
             <span>Nueva Categoría</span>
           </button>
@@ -152,19 +160,18 @@ export function InventoryPage() {
         </div>
       )}
 
-      {/* Modern Inventory Table */}
       <div className="table-card">
         <div className="table-responsive">
           {loading ? (
             <div className="empty-state">
-              <div className="spinner" style={{ margin: '0 auto 1rem auto', width: '32px', height: '32px' }}></div>
-              <p>Sincronizando catálogo con Supabase...</p>
+              <div className="spinner" style={{ margin: '0 auto 1rem auto' }}></div>
+              <p>Cargando inventario desde Supabase Cloud...</p>
             </div>
           ) : variants.length === 0 ? (
             <div className="empty-state">
-              <PackageCheck size={52} className="empty-state-icon" />
+              <PackageCheck size={48} />
               <h4>No se encontraron productos</h4>
-              <p>Intenta ajustar los criterios de búsqueda o registra tu primer producto.</p>
+              <p>Prueba con otros términos de búsqueda o agrega un nuevo producto.</p>
             </div>
           ) : (
             <table className="inventory-table">
@@ -184,19 +191,20 @@ export function InventoryPage() {
               <tbody>
                 {variants.map((v) => {
                   const isOut = v.stock === 0;
-                  const isLow = v.stock > 0 && v.stock <= 5;
+                  const isLow = v.stock <= 5 && v.stock > 0;
+
                   return (
                     <tr key={v.id}>
                       <td>
                         <span className="sku-badge">{v.sku}</span>
                       </td>
                       <td>
-                        <div className="product-name-title">{v.variantName || v.product?.baseName}</div>
-                        {v.product?.baseName && v.product?.baseName !== v.variantName && (
-                          <div className="product-name-sub">{v.product?.baseName}</div>
-                        )}
+                        <div className="product-title-cell">
+                          <span className="variant-name">{v.variantName || v.product?.baseName}</span>
+                          <span className="base-name">{v.product?.baseName}</span>
+                        </div>
                       </td>
-                      <td>{v.product?.category?.name || 'Sin Categoría'}</td>
+                      <td>{v.product?.category?.name || 'General'}</td>
                       <td style={{ color: 'var(--text-secondary)' }}>{v.product?.supplier?.name || 'N/A'}</td>
                       <td>
                         <span className="cost-tag">${Number(v.costUsd).toFixed(2)}</span>
@@ -222,13 +230,22 @@ export function InventoryPage() {
                         )}
                       </td>
                       <td style={{ textAlign: 'right' }}>
-                        <button
-                          onClick={() => handleArchiveVariant(v.id)}
-                          className="btn-icon-action"
-                          title="Archivar Variante"
-                        >
-                          <Archive size={16} />
-                        </button>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.35rem' }}>
+                          <button
+                            onClick={() => setEditingVariant(v)}
+                            className="btn-icon-action"
+                            title="Editar Producto / Variante"
+                          >
+                            <Edit3 size={16} color="var(--accent-gold)" />
+                          </button>
+                          <button
+                            onClick={() => handleArchiveVariant(v.id)}
+                            className="btn-icon-action"
+                            title="Archivar Variante"
+                          >
+                            <Archive size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -239,7 +256,7 @@ export function InventoryPage() {
         </div>
       </div>
 
-      {/* Modales */}
+      {/* Modal de Nuevo Producto */}
       {showProductModal && (
         <ProductModal
           categories={categories}
@@ -249,10 +266,20 @@ export function InventoryPage() {
         />
       )}
 
+      {/* Modal de Nueva Categoría */}
       {showCategoryModal && (
         <CategoryModal
           onClose={() => setShowCategoryModal(false)}
           onSave={handleCreateCategory}
+        />
+      )}
+
+      {/* Modal de Edición de Producto / Variante */}
+      {editingVariant && (
+        <EditVariantModal
+          variant={editingVariant}
+          onClose={() => setEditingVariant(null)}
+          onSave={handleUpdateVariant}
         />
       )}
     </div>
